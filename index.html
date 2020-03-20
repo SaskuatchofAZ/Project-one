@@ -8,124 +8,55 @@
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>Whether's Weather</title>
+    <title>RouteWeather™</title>
 </head>
 
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
-        <h1 class="display-4" style="text-align: center">WeatherRoute™</h1>
+        <h1 class="display-4" style="text-align: center">RouteWeather™</h1>
     </div>
 </div>
 
 <body>
     <div class="container" id="pageBody">
-        <div class="row">
-            <div class="col-3">
-                <div container="container" id="searchArea">
-                    <h4>Search city weather</h4>
-                    <input type="text" id="search" placeholder="Enter a city">
-                    <button id="submit" type="submit"><i class="fa fa-search"></i></button>
-                </div>
-                <div container="container" id="searchHistoryButtons"></div>
+
+        <div class="row" id="userInputs">
+            <div container="container" id="startingPoint">
+                <h4>Enter a starting point</h4>
+                <input type="text" id="startingPt">
             </div>
-            <div class="col-9">
-                <div class="row">
-                    <div class="container" id="currentForecast">
-                    </div>
-                </div>
-                <div class="row">
-                    Five Day Forecast:
-                </div>
-                <div class="row" id="forecastContainer">
-                </div>
+            <div container="container" id="destination">
+                <h4>Enter your destination</h4>
+                <input type="text" id="destination">
             </div>
+            <button id="submit" type="submit"><i class="fa fa-search"></i></button>
         </div>
+
+        <div class="row">
+            <div class="col-8" id="routeMap">Route Map</div>
+            <div class="col" id="weather">Weather during route</div>   
+        </div>
+
+        <div class="row" id="textDirections">Text Directions</div>
+
     </div>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 
-    var apiKey = "d1e2220fab9432369f86d8c8f2b3df41";
+    //var apiKey = "ENTER API KEY";
     var city;
 
-    
-    document.querySelector("#searchHistoryButtons").style.display = "none";
-    document.querySelector("#currentForecast").style.display = "none";
-    
-    
-    $("#submit").on("click", function () {
-        city = $("#search").val();
-        renderCurrent();
-        renderForecast();
-    })
-
-    $("#searchHistoryButtons").on("click", function () {
-        city = event.target.textContent //target which button clicked within search history buttons
-        renderCurrent();
-        renderForecast();
-    })
-
-    function renderCurrent() {
+    function routeMap() {
         $.ajax({
-            url: "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey,
+            //url: "ENTER URL HERE" + apiKey + variables,
             method: "GET"
         }).then(function (response) {
-
-            $("#currentForecast").empty();
-
-            var location = $("<h2>");
-            var temperature = $("<p>");
-            var humidity = $("<p>");
-            var windSpeed = $("<p>");
-            var UVIndex = $("<p>");
-            var icon = $("<img id=weatherIcon>");
-            
-            var currentTempF = (((response.main.temp) - 273.15)*1.8 + 32).toPrecision(3);
-
-            var iconCode = response.weather[0].icon; //new variable stores value of icon code from response
-            var iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png"; //new variable stores URL to render correct icon using iconCode
-            
-            $(icon).attr("src", iconUrl);
-            $(location).text(response.name);
-            $(temperature).text("Temperature: " + currentTempF + " °F");
-            $(humidity).text("Humidity: " + response.main.humidity + "%");
-            $(windSpeed).text("Wind Speed: " + response.wind.speed + " MPH");
-            $(UVIndex).text("UV Index: blank for now");
-
-            document.querySelector("#currentForecast").style.display = "block";
-            $("#currentForecast").append(location, icon, temperature, humidity, windSpeed, UVIndex);
-
-            var historicalSearch = $("<button>");
-            $(historicalSearch).text(response.name);
-            document.querySelector("#searchHistoryButtons").style.display = "block";
-            $("#searchHistoryButtons").prepend("<br>");
-            $("#searchHistoryButtons").prepend(historicalSearch);
-  
+        
         })
     }
 
-    function renderForecast (){
+</script>
 
-        $.ajax({
-            url: "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiKey,
-            method: "GET"
-        }).then(function (response) {
-            console.log(response);
-            for (var i=0; i<40; i+=8) {
-
-                var dayContainer = $("<col id=forecastDay>");
-                var dateForecast = $("<p>");
-                var iconForecast = $("<img>");
-                var tempForecast = $("<p>");
-                var humidityForecast = $("<p>");
-
-
-                dateForecast.text(response.list[i].dt).appendTo(dayContainer);
-                tempForecast.text("Temperature: " + ((((response.list[i].main.temp) - 273.15)*1.8 + 32).toPrecision(3)) + " °F").appendTo(dayContainer);
-                humidityForecast.text("Humidity: " + (response.list[i].main.humidity) + " %").appendTo(dayContainer);
-                dayContainer.appendTo("#forecastContainer");
-
-            }   
-        })
-    }
+</html>
