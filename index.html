@@ -43,6 +43,13 @@
 <script>
     var apiKey = "AIzaSyAprjsxyTtfxU27NuYaKEEz7Gu7iqK52xI";
     var city;
+    var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('routeMap'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 8
+        });
+      }
     function routeMap() {
         $.ajax({
             url: "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=" + apiKey,
@@ -53,5 +60,8 @@
     }
     routeMap();
 
+</script>
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAsofqoxiHLikZe_JMOCh7Vb5V05jcvhU&callback=initMap">
 </script>
 </html>
