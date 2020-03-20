@@ -41,17 +41,17 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-    //var apiKey = "ENTER API KEY";
+    var apiKey = "AIzaSyAprjsxyTtfxU27NuYaKEEz7Gu7iqK52xI";
     var city;
     function routeMap() {
         $.ajax({
-            //url: "ENTER URL HERE" + apiKey + variables,
+            url: "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=" + apiKey,
             method: "GET"
         }).then(function (response) {
-        
+            console.log(response);
         })
     }
-
+    routeMap();
 
 </script>
 </html>
