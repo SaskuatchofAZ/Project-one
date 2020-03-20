@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>RouteWeather™</title>
+</head>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4" style="text-align: center">RouteWeather™</h1>
+    </div>
+</div>
+<body>
+    <div class="container" id="pageBody">
+        <div class="row" id="userInputs">
+            <div container="container" id="startingPoint">
+                <h4>Enter a starting point</h4>
+                <input type="text" id="startingPt">
+            </div>
+            <div container="container" id="destination">
+                <h4>Enter your destination</h4>
+                <input type="text" id="destination">
+            </div>
+            <button id="submit" type="submit"><i class="fa fa-search"></i></button>
+        </div>
+        <div class="row">
+            <div class="col-8" id="routeMap">Route Map</div>
+            <div class="col" id="weather">Weather during route</div>   
+        </div>
+        <div class="row" id="textDirections">Text Directions</div>
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    //var apiKey = "ENTER API KEY";
+    var city;
+    function routeMap() {
+        $.ajax({
+            //url: "ENTER URL HERE" + apiKey + variables,
+            method: "GET"
+        }).then(function (response) {
+        
+        })
+    }
+</script>
+</html>
