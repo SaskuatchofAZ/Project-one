@@ -19,7 +19,6 @@
 
 <body>
     <div class="container" id="pageBody">
-
         <div class="row" id="userInputs">
             <div container="container" id="startingPoint">
                 <h4>Enter a starting point</h4>
@@ -31,23 +30,19 @@
             </div>
             <button id="submit" type="submit"><i class="fa fa-search"></i></button>
         </div>
-
+      
         <div class="row">
             <div class="col-8" id="routeMap">Route Map</div>
             <div class="col" id="weather">Weather during route</div>   
         </div>
 
         <div class="row" id="textDirections">Text Directions</div>
-
     </div>
 </body>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-
     //var apiKey = "ENTER API KEY";
     var city;
-
     function routeMap() {
         $.ajax({
             //url: "ENTER URL HERE" + apiKey + variables,
@@ -57,6 +52,6 @@
         })
     }
 
-</script>
 
+</script>
 </html>
