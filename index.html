@@ -26,16 +26,16 @@
             </div>
             <div container="container" id="destination">
                 <h4>Enter your destination</h4>
-                <input type="text" id="destination">
+                <input type="text" id="destinationPt">
             </div>
             <button id="submit" type="submit"><i class="fa fa-search"></i></button>
         </div>
-      
+
         <div class="row">
             <div class="col-8" id="routeMap">Route Map</div>
             <div class="col" id="weather">
-                <p>Weather during route</p>
-            </div>   
+                <p>Weather during route:</p>
+            </div>
         </div>
 
         <div class="row" id="textDirections">Text Directions</div>
@@ -44,46 +44,69 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
     var apiKey = "AIzaSyAprjsxyTtfxU27NuYaKEEz7Gu7iqK52xI";
-    var city;
+    var startCity;
+    var endCity;
+    var weatherReturns = [];
+    var weatherUniques = [];
     var map;
-      function initMap() {
+    function initMap() {
         map = new google.maps.Map(document.getElementById('routeMap'), {
-          center: {lat: -34.397, lng: 150.644},
-          zoom: 8
+            center: { lat: -34.397, lng: 150.644 },
+            zoom: 8
         });
-      }
+    }
     function routeMap() {
+        var route = new Map();
         $.ajax({
-            url: "https://maps.googleapis.com/maps/api/directions/json?origin=Tucson&destination=Los+Angeles&key=" + apiKey,
+            url: "https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
             method: "GET"
         }).then(function (response) {
             console.log(response);
-            startLat = response.routes[0].legs[0].start_location.lat
-            startLong = response.routes[0].legs[0].start_location.lng
 
-            dstLat = response.routes[0].legs[0].end_location.lat
-            dstLong = response.routes[0].legs[0].end_location.lng
+            for (i = 0; i < response.routes[0].legs[0].steps.length; i++) {
+                var lat = response.routes[0].legs[0].steps[i].end_location.lat
+                var lng = response.routes[0].legs[0].steps[i].end_location.lng
+                const id = i;
 
-            $.ajax({
-                url: "https://api.openweathermap.org/data/2.5/weather?lat=" + startLat + "&lon=" + startLong + "&appid=0148692f495f14a2ef755e446f5b33e4",
-                method: "GET"
-            }).then(function(rsp) {
-                console.log(rsp);
-            })
+                $.ajax({
+                    url: "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lng + "&appid=0148692f495f14a2ef755e446f5b33e4",
+                    method: "GET"
+                }).then(function (res) {
+                    route.set(id, res);
 
-            $.ajax({
-                url: "https://api.openweathermap.org/data/2.5/weather?lat=" + dstLat + "&lon=" + dstLong + "&appid=0148692f495f14a2ef755e446f5b33e4",
-                method: "GET"
-            }).then(function(res) {
-                console.log(res);
-            }               
-            )
-        })
+                    if (route.size === response.routes[0].legs[0].steps.length) {
+                        console.log(route.values());
+                        var locales = [];
+                        route.forEach(function (station, id) {
+                            var city = $("<p>");
+                            city.text(station.name);
+                            var weather = $("<div>");
+                            weather.append(city);
+                            var condition = $("<p>");
+                            condition.text("Conditions: " + station.weather[0].description);
+                            weather.append(condition)
+                            var temperature = $("<p>");
+                            var tempCalc = Math.round((station.main.temp - 273.15) * 9 / 5 + 32);
+                            temperature.text("Temp: " + tempCalc + "degrees F");
+                            weather.append(temperature);
+                            $("#weather").append(weather);
+                        })
+                    }
+                });
+            }
+
+        });
+
     }
-    routeMap();
+    $("#submit").on("click", function () {
+        startCity = $("#startingPt").val().trim();
+        endCity = $("#destinationPt").val().trim();
+        routeMap();
+    })
 
 </script>
 <script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAsofqoxiHLikZe_JMOCh7Vb5V05jcvhU&callback=initMap">
-</script>
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAsofqoxiHLikZe_JMOCh7Vb5V05jcvhU&callback=initMap">
+    </script>
+
 </html>
