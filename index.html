@@ -76,20 +76,32 @@
 
                     if (route.size === response.routes[0].legs[0].steps.length) {
                         console.log(route.values());
-                        var locales = [];
+                        var locales = []; //empty array of unique station names
                         route.forEach(function (station, id) {
-                            var city = $("<p>");
-                            city.text(station.name);
-                            var weather = $("<div>");
-                            weather.append(city);
-                            var condition = $("<p>");
-                            condition.text("Conditions: " + station.weather[0].description);
-                            weather.append(condition)
-                            var temperature = $("<p>");
-                            var tempCalc = Math.round((station.main.temp - 273.15) * 9 / 5 + 32);
-                            temperature.text("Temp: " + tempCalc + "degrees F");
-                            weather.append(temperature);
-                            $("#weather").append(weather);
+
+                            var duplicate = "no" //default duplicate value for each new staion.name is no
+                            
+                            for (var j=0; j<locales.length; j++){ //compares station.name to those existing in array
+                                if (station.name == locales[j]){
+                                    duplicate = "yes" //resets duplicate varianle to yes if there is a match
+                                }
+                            }
+
+                            if (duplicate == "no") {
+                                locales.push(station.name) //push non duplicate station.name into array
+                                var city = $("<p>");
+                                city.text(station.name);
+                                var weather = $("<div>");
+                                weather.append(city);
+                                var condition = $("<p>");
+                                condition.text("Conditions: " + station.weather[0].description);
+                                weather.append(condition)
+                                var temperature = $("<p>");
+                                var tempCalc = Math.round((station.main.temp - 273.15) * 9 / 5 + 32);
+                                temperature.text("Temp: " + tempCalc + "degrees F");
+                                weather.append(temperature);
+                                $("#weather").append(weather);
+                            }
                         })
                     }
                 });
