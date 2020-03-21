@@ -26,7 +26,7 @@
             </div>
             <div container="container" id="destination">
                 <h4>Enter your destination</h4>
-                <input type="text" id="destination">
+                <input type="text" id="destinationPt">
             </div>
             <button id="submit" type="submit"><i class="fa fa-search"></i></button>
         </div>
@@ -34,7 +34,7 @@
         <div class="row">
             <div class="col-8" id="routeMap">Route Map</div>
             <div class="col" id="weather">
-                <p>Weather during route</p>
+                <p>Weather during route:</p>
             </div>   
         </div>
 
@@ -44,7 +44,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
     var apiKey = "AIzaSyAprjsxyTtfxU27NuYaKEEz7Gu7iqK52xI";
-    var city;
+    var startCity;
+    var endCity;
     var map;
       function initMap() {
         map = new google.maps.Map(document.getElementById('routeMap'), {
@@ -54,7 +55,7 @@
       }
     function routeMap() {
         $.ajax({
-            url: "https://maps.googleapis.com/maps/api/directions/json?origin=Tucson&destination=Los+Angeles&key=" + apiKey,
+            url: "https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
             method: "GET"
         }).then(function (response) {
             console.log(response);
@@ -80,7 +81,11 @@
             )
         })
     }
-    routeMap();
+    $("#submit").on("click", function(){
+        startCity = $("#startingPt").val().trim();
+        endCity = $("#destinationPt").val().trim();
+        routeMap();
+    })
 
 </script>
 <script async defer
