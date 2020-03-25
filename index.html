@@ -33,7 +33,7 @@
                 <input type="text" id="startTm">
             </div>
             <div class="col" id="SubmitBtn">
-            <button id="submit" type="submit"><i class="fa fa-search"></i></button>
+                <button id="submit" type="submit"><i class="fa fa-search"></i></button>
             </div>
         </div>
 
@@ -57,11 +57,11 @@
     var map;
 
     var now = new Date(); //retreives current date in unix
-    var beginningOfTomorrow = (24*60*60*1000)+(now.getTime() - //creates beginning of tomorrow (midnight) in UNIX format
-            now.getHours() * 60 * 60 * 1000 -
-            now.getMinutes() * 60 * 1000 -
-            now.getSeconds() * 1000 -
-            now.getMilliseconds());
+    var beginningOfTomorrow = (24 * 60 * 60 * 1000) + (now.getTime() - //creates beginning of tomorrow (midnight) in UNIX format
+        now.getHours() * 60 * 60 * 1000 -
+        now.getMinutes() * 60 * 1000 -
+        now.getSeconds() * 1000 -
+        now.getMilliseconds());
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('routeMap'), {
@@ -83,7 +83,7 @@
 
         $("#weather").empty();
         var weatherText = $("<p>").text("Weather during route:");
-        
+
         $("#weather").append(weatherText);
         var route = new Map();
         $.ajax({
@@ -97,66 +97,65 @@
                 var lng = response.routes[0].legs[0].steps[i].end_location.lng
                 const id = i;
 
-                $.ajax({
+                var res = $.ajax({
                     url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lng + "&appid=0148692f495f14a2ef755e446f5b33e4",  //changed to forecast api
-                    method: "GET"
-                }).then(function (res, id) {
+                    method: "GET", async: false
+                })
 
-                    route.set(id, res);
-                    console.log(res);
+                route.set(i, res);
+                console.log(res);
 
-                    if (route.size === response.routes[0].legs[0].steps.length) {
-            
-                        var locales = []; //empty array of unique station names
-                        route.forEach(function (station, id) {
+                if (route.size === response.routes[0].legs[0].steps.length) {
 
-                            var duplicate = false //default duplicate value for each new staion.name is no
-                            
-                            for (var j=0; j<locales.length; j++){ //compares station.name to those existing in array
-                                if (station.city.name == locales[j]){
-                                    duplicate = true //resets duplicate varianle to yes if there is a match
+                    var locales = []; //empty array of unique station names
+                    route.forEach(function (station, id) {
+                        var station = station.responseJSON
+                        var duplicate = false //default duplicate value for each new staion.name is no
+
+                        for (var j = 0; j < locales.length; j++) { //compares station.name to those existing in array
+                            if (station.city.name == locales[j]) {
+                                duplicate = true //resets duplicate varianle to yes if there is a match
+                            }
+                        }
+
+                        if (!duplicate) {
+
+                            var forecastTimeIndex;
+
+                            for (var k = 0; k < station.list.length; k++) {
+                                console.log(Math.abs(station.list[k].dt - startTimeUnix));
+                                console.log(Math.abs(station.list[k].dt));
+                                console.log(Math.abs(startTimeUnix));
+                                if (Math.abs(station.list[k].dt - startTimeUnix) <= 5400) {
+                                    forecastTimeIndex = k;
+                                    console.log(forecastTimeIndex);
                                 }
                             }
 
-                            if (!duplicate) {
-
-                                var forecastTimeIndex;
-
-                                for (var k = 0; k < station.list.length; k++) {
-                                    console.log(Math.abs(station.list[k].dt - startTimeUnix));
-                                    console.log(Math.abs(station.list[k].dt));
-                                    console.log(Math.abs(startTimeUnix));
-                                    if (Math.abs(station.list[k].dt - startTimeUnix) <= 5400) {
-                                        forecastTimeIndex = k;
-                                        console.log(forecastTimeIndex);
-                                    }
-                                }
-
-                                locales.push(station.city.name) //push non duplicate station.name into array
-                                var city = $("<p>");
-                                city.text(station.city.name);
-                                var weather = $("<div>");
-                                weather.append(city);
-                                var condition = $("<p>");
-                                condition.text("Conditions: " + station.list[0].weather[0].description);
-                                weather.append(condition)
-                                var temperature = $("<p>");
-                                var tempCalc = Math.round((station.list[0].main.temp - 273.15) * 9 / 5 + 32);
-                                temperature.text("Temp: " + tempCalc + " degrees F");
-                                weather.append(temperature);
-                                $("#weather").append(weather);
-                            }
-                        })
-                    }
-                }); 
+                            locales.push(station.city.name) //push non duplicate station.name into array
+                            var city = $("<p>");
+                            city.text(station.city.name);
+                            var weather = $("<div>");
+                            weather.append(city);
+                            var condition = $("<p>");
+                            condition.text("Conditions: " + station.list[0].weather[0].description);
+                            weather.append(condition)
+                            var temperature = $("<p>");
+                            var tempCalc = Math.round((station.list[0].main.temp - 273.15) * 9 / 5 + 32);
+                            temperature.text("Temp: " + tempCalc + " degrees F");
+                            weather.append(temperature);
+                            $("#weather").append(weather);
+                        }
+                    })
+                }
             }
 
         });
 
     }
 
-    
-    
+
+
 
 </script>
 <script async defer
