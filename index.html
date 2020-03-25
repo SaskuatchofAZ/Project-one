@@ -56,6 +56,10 @@
         });
     }
     function routeMap() {
+        $("#weather").empty();
+        var weatherText = $("<p>").text("Weather during route:");
+        
+        $("#weather").append(weatherText);
         var route = new Map();
         $.ajax({
             url: "https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
