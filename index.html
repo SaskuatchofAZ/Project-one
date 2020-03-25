@@ -57,11 +57,11 @@
     var map;
 
     var now = new Date(); //retreives current date in unix
-    var beginningOfTomorrow = (24 * 60 * 60 * 1000) + (now.getTime() - //creates beginning of tomorrow (midnight) in UNIX format
-        now.getHours() * 60 * 60 * 1000 -
-        now.getMinutes() * 60 * 1000 -
-        now.getSeconds() * 1000 -
-        now.getMilliseconds());
+  
+    var beginningOfTomorrow = new Date();
+    beginningOfTomorrow.setDate(now.getDate()+1);
+    beginningOfTomorrow.setHours(0,0,0);
+    console.log(beginningOfTomorrow);
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('routeMap'), {
@@ -74,7 +74,8 @@
         startCity = $("#startingPt").val().trim();
         endCity = $("#destinationPt").val().trim();
         startTimeHuman = $("#startTm").val().trim();
-        startTimeUnix = beginningOfTomorrow + (startTimeHuman * 60 * 60 * 1000); //adds beginning of day in UNIX to user input (MUST BE WHOLE HOURS 24HR Time) in Unix
+        beginningOfTomorrow.setHours(startTimeHuman,0,0);
+        startTimeUnix = (beginningOfTomorrow.getTime())/1000;
         console.log(startTimeUnix);
         routeMap();
     })
@@ -120,15 +121,13 @@
 
                         if (!duplicate) {
 
-                            var forecastTimeIndex;
+                            var forecast;
 
-                            for (var k = 0; k < station.list.length; k++) {
-                                console.log(Math.abs(station.list[k].dt - startTimeUnix));
-                                console.log(Math.abs(station.list[k].dt));
-                                console.log(Math.abs(startTimeUnix));
-                                if (Math.abs(station.list[k].dt - startTimeUnix) <= 5400) {
-                                    forecastTimeIndex = k;
-                                    console.log(forecastTimeIndex);
+                            for (var k = 0; k < station.list.length && forecast == null; k++) {
+                                console.log(station.list[k].dt, startTimeUnix);
+                                if (station.list[k].dt > startTimeUnix) {
+                                    forecast = station.list[k];
+                                    console.log(forecast);
                                 }
                             }
 
