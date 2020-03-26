@@ -138,7 +138,7 @@
 
                         if (!duplicate) {
 
-                             var forecast;
+                            var forecast;
 
                             for (var k = 0; k < station.list.length && forecast == null; k++) {
                                 if (station.list[k].dt > startTimeUnix) {
@@ -153,10 +153,10 @@
                             var weatherIcon = $("<div>").attr("class", "<col>").appendTo(weather);
 
                             var city = $("<h5>").text(station.city.name).appendTo(weatherData);
-                            var condition = $("<p>").text("Conditions: " + station.list[j].weather[0].description).appendTo(weatherData);
-                            var tempCalc = Math.round((station.list[j].main.temp - 273.15) * 9 / 5 + 32);
+                            var condition = $("<p>").text("Conditions: " + forecast.weather[0].description).appendTo(weatherData);
+                            var tempCalc = Math.round((forecast.main.temp - 273.15) * 9 / 5 + 32);
                             var temperature = $("<p>").text("Temp: " + tempCalc + " degrees F").appendTo(weatherData);
-                            var forecastIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + station.list[j].weather[0].icon + "@2x.png").appendTo(weatherIcon);
+                            var forecastIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + forecast.weather[0].icon + "@2x.png").appendTo(weatherIcon);
                         }
                     })
                 }
