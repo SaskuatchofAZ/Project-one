@@ -1,48 +1,69 @@
 .jumbotron{
     padding: 20px;
     font-family: Arial, Helvetica, sans-serif;
-    color: white;
-    background-color:lightblue;
-    text-shadow: 3px 3px 2px black;
+    color: #39ff14;
+    background-color: purple;
+    text-shadow: 3px 3px 2px orange;
 }
 
 #userInputs{
     padding: 10px;
-    margin: 10px;
+    margin: 15px;
     background-color: beige;
+    border-color: navy;
     border-style: outset;
     border-radius: 15px;
+    box-shadow: 3px 3px 2px orange;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #routeMap{
     padding: 10px;
-    margin: 10px;
-    background-color: burlywood;
+    margin: 15px;
+    background-color: beige;
+    border-color: navy;
     border-style: outset;
     border-radius: 15px;
-    width: 70%;
-    height: 300px;
+    box-shadow: 3px 3px 2px orange;
+    height: 600px;
 }
 
-#weather{
+#weatherContainer{
     padding: 10px;
-    margin: 10px;
-    background-color: lightseagreen;
+    margin: 15px 15px 15px 0px;
+    background-color: beige;
+    border-color: navy;
     border-style: outset;
     border-radius: 15px;
+    box-shadow: 3px 3px 2px orange;
 }
 
 #textDirections{
     padding: 10px;
-    margin: 10px;
-    background-color:maroon;
+    margin: 30px 15px 15px 15px;
+    background-color: beige;
+    border-color: navy;
     border-style: outset;
     border-radius: 15px;
+    box-shadow: 3px 3px 2px orange;
 }
 
 h4{
     font-family: Arial, Helvetica, sans-serif;
     font-size: 20px;
+    padding-bottom: 5px;
+}
+
+h5{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+}
+
+p{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
 }
 
 button{
@@ -51,12 +72,5 @@ button{
     width: 50px;
     height: 50px;
     border-radius: 5px;
-    margin: 5px;
-    padding: 5px;
 }
 
-input{
-    font-family: Arial, Helvetica, sans-serif;
-    border-style: outset;
-    border-radius: 5px;
-}

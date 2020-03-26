@@ -21,34 +21,37 @@
     <div class="container" id="pageBody">
         <div class="row" id="userInputs">
             <div class="col" id="startingPoint">
-                <h4>Enter your origin</h4>
-                <input type="text" id="startingPt">
+                <h4>Origin</h4>
+                <input type="text" id="startingPt" class="form-control">
             </div>
             <div class="col" id="destination">
-                <h4>Enter your destination</h4>
-                <input type="text" id="destinationPt">
+                <h4>Destination</h4>
+                <input type="text" id="destinationPt" class="form-control">
             </div>
-            <div class="col" id="StartingTime">
-                <h4>Enter your start time</h4>
-                <input type="text" id="startTm">
+            <div class="col" id="startingTime">
+                <h4>Start Time (tomorrow)</h4>
+                <input type="time" id="startTm" class="form-control">
             </div>
-            <div class="col" id="SubmitBtn">
+            <div class="col d-flex justify-content-center" id="SubmitBtn">
                 <button id="submit" type="submit"><i class="fa fa-search"></i></button>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-8" id="routeMap">Route Map</div>
-            <div class="col" id="weather">
-                <p>Weather during route:</p>
+            <div class="col-8" id="directionsContainer">
+                <div class="row" id="routeMap">Route Map</div>
+                <div class="row" id="textDirections"></div>
+            </div>
+            <div class="col" id="weatherContainer">
             </div>
         </div>
-
-        <div class="row" id="textDirections">Text Directions</div>
     </div>
 </body>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
+
     var apiKey = "AIzaSyAprjsxyTtfxU27NuYaKEEz7Gu7iqK52xI";
     var startCity;
     var endCity;
@@ -56,25 +59,111 @@
     var startTimeUnix; //will store startTimeHuman converted to UNIX
     var map;
 
-    var now = new Date(); //retreives current date in unix
+    $("#routeMap").hide();
+    $("#textDirections").hide();
+    $("#weatherContainer").hide();
 
+    var now = new Date(); //retreives current date in unix
     var beginningOfTomorrow = new Date();
     beginningOfTomorrow.setDate(now.getDate() + 1);
     beginningOfTomorrow.setHours(0, 0, 0);
-    console.log(beginningOfTomorrow);
-
 
 
     $("#submit").on("click", function () {
         startCity = $("#startingPt").val().trim();
         endCity = $("#destinationPt").val().trim();
         startTimeHuman = $("#startTm").val().trim();
-        beginningOfTomorrow.setHours(startTimeHuman, 0, 0);
+        var hoursHuman = startTimeHuman.substring(0,2);
+        var minsHuman = startTimeHuman.substring(3,5);
+        beginningOfTomorrow.setHours(hoursHuman, minsHuman, 0);
         startTimeUnix = (beginningOfTomorrow.getTime()) / 1000 - (7 * 60 * 60);
-        console.log(startTimeUnix);
         
         routeMap();
     })
+
+
+    function routeMap() {
+
+        $("#weatherContainer").empty();
+        $("#textDirections").empty();
+        
+        $("#routeMap").show();
+        $("#weatherContainer").show();
+        $("#textDirections").show();
+
+        var weatherHeader = $("<h4>").text("Weather during route:").appendTo("#weatherContainer");
+        var textDirectionsHeader = $("<h4>").text("Directions:").appendTo("#textDirections");
+
+        var route = new Map();
+        $.ajax({
+            url: "https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
+            method: "GET"
+        }).then(function (response) {
+            console.log(response);
+
+            var startLat = response.routes[0].legs[0].start_location.lat;
+            var startLong = response.routes[0].legs[0].start_location.lng;
+            var endLat = response.routes[0].legs[0].end_location.lat;
+            var endLong = response.routes[0].legs[0].end_location.lng;
+
+            initMap(startLat, startLong, endLat, endLong);
+
+            for (i = 0; i < response.routes[0].legs[0].steps.length; i++) {
+                var lat = response.routes[0].legs[0].steps[i].end_location.lat
+                var lng = response.routes[0].legs[0].steps[i].end_location.lng
+                const id = i;
+
+                var textDirections = $("<p>").appendTo(textDirectionsHeader).text(response.routes[0].legs[0].steps[i].html_instructions);
+
+                var res = $.ajax({
+                    url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lng + "&appid=0148692f495f14a2ef755e446f5b33e4",  //changed to forecast api
+                    method: "GET", async: false
+                })
+
+                route.set(i, res);
+                //console.log(res);
+
+                if (route.size === response.routes[0].legs[0].steps.length) {
+
+                    var locales = []; //empty array of unique station names
+                    route.forEach(function (station, id) {
+                        var station = station.responseJSON
+                        var duplicate = false //default duplicate value for each new staion.name is no
+
+                        for (var j = 0; j < locales.length; j++) { //compares station.name to those existing in array
+                            if (station.city.name == locales[j]) {
+                                duplicate = true //resets duplicate varianle to yes if there is a match
+                            }
+                        }
+
+                        if (!duplicate) {
+
+                             var forecast;
+
+                            for (var k = 0; k < station.list.length && forecast == null; k++) {
+                                if (station.list[k].dt > startTimeUnix) {
+                                    forecast = station.list[k];
+                                }
+                            }
+
+                            locales.push(station.city.name) //push non duplicate station.name into array
+
+                            var weather = $("<div>").attr("class", "<row>").appendTo("#weatherContainer")
+                            var weatherData = $("<div>").attr("class", "<col>").appendTo(weather);
+                            var weatherIcon = $("<div>").attr("class", "<col>").appendTo(weather);
+
+                            var city = $("<h5>").text(station.city.name).appendTo(weatherData);
+                            var condition = $("<p>").text("Conditions: " + station.list[j].weather[0].description).appendTo(weatherData);
+                            var tempCalc = Math.round((station.list[j].main.temp - 273.15) * 9 / 5 + 32);
+                            var temperature = $("<p>").text("Temp: " + tempCalc + " degrees F").appendTo(weatherData);
+                            var forecastIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + station.list[j].weather[0].icon + "@2x.png").appendTo(weatherIcon);
+                        }
+                    })
+                }
+            }
+        });
+    }
+    
 
     function initMap(latA, longA, latB, longB) {
         var pointA = new google.maps.LatLng(latA, longA),
@@ -108,7 +197,6 @@
     }
 
 
-
     function calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB) {
         directionsService.route({
             origin: pointA,
@@ -122,91 +210,6 @@
             }
         });
     }
-
-    
-
-    function routeMap() {
-
-        $("#weather").empty();
-        var weatherText = $("<p>").text("Weather during route:");
-
-        $("#weather").append(weatherText);
-        var route = new Map();
-        $.ajax({
-            url: "https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
-            method: "GET"
-        }).then(function (response) {
-            console.log(response);
-
-            var startLat = response.routes[0].legs[0].start_location.lat;
-            var startLong = response.routes[0].legs[0].start_location.lng;
-            var endLat = response.routes[0].legs[0].end_location.lat;
-            var endLong = response.routes[0].legs[0].end_location.lng;
-
-            initMap(startLat,startLong,endLat,endLong);
-
-            for (i = 0; i < response.routes[0].legs[0].steps.length; i++) {
-                var lat = response.routes[0].legs[0].steps[i].end_location.lat
-                var lng = response.routes[0].legs[0].steps[i].end_location.lng
-                const id = i;
-
-                var res = $.ajax({
-                    url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lng + "&appid=0148692f495f14a2ef755e446f5b33e4",  //changed to forecast api
-                    method: "GET", async: false
-                })
-
-                route.set(i, res);
-                console.log(res);
-
-                if (route.size === response.routes[0].legs[0].steps.length) {
-
-                    var locales = []; //empty array of unique station names
-                    route.forEach(function (station, id) {
-                        var station = station.responseJSON
-                        var duplicate = false //default duplicate value for each new staion.name is no
-
-                        for (var j = 0; j < locales.length; j++) { //compares station.name to those existing in array
-                            if (station.city.name == locales[j]) {
-                                duplicate = true //resets duplicate varianle to yes if there is a match
-                            }
-                        }
-
-                        if (!duplicate) {
-
-                            var forecast;
-
-                            for (var k = 0; k < station.list.length && forecast == null; k++) {
-                                console.log(station.list[k].dt, startTimeUnix);
-                                if (station.list[k].dt > startTimeUnix) {
-                                    forecast = station.list[k];
-                                    console.log(forecast);
-                                }
-                            }
-
-                            locales.push(station.city.name) //push non duplicate station.name into array
-                            var city = $("<p>");
-                            city.text(station.city.name);
-                            var weather = $("<div>");
-                            weather.append(city);
-                            var condition = $("<p>");
-                            condition.text("Conditions: " + station.list[0].weather[0].description);
-                            weather.append(condition)
-                            var temperature = $("<p>");
-                            var tempCalc = Math.round((station.list[0].main.temp - 273.15) * 9 / 5 + 32);
-                            temperature.text("Temp: " + tempCalc + " degrees F");
-                            weather.append(temperature);
-                            $("#weather").append(weather);
-                        }
-                    })
-                }
-            }
-
-        });
-
-    }
-
-
-
 
 </script>
 <script async defer
