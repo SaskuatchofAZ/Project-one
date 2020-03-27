@@ -9,7 +9,7 @@
 #userInputs{
     padding: 10px;
     margin: 15px;
-    background-color: beige;
+    background-color:  #d3d3d3;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
@@ -22,7 +22,7 @@
 #routeMap{
     padding: 10px;
     margin: 15px;
-    background-color: beige;
+    background-color: #d3d3d3;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
@@ -33,17 +33,23 @@
 #weatherContainer{
     padding: 10px;
     margin: 15px 15px 15px 0px;
-    background-color: beige;
+    border-style: none;
+}
+
+#textDirections{
+    padding: 10px;
+    margin: 30px 15px 15px 15px;
+    background-color: #d3d3d3;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
     box-shadow: 3px 3px 2px orange;
 }
 
-#textDirections{
+#weatherCard{
     padding: 10px;
     margin: 30px 15px 15px 15px;
-    background-color: beige;
+    background-color: #d3d3d3;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
@@ -53,7 +59,6 @@
 h4{
     font-family: Arial, Helvetica, sans-serif;
     font-size: 20px;
-    padding-bottom: 5px;
 }
 
 h5{

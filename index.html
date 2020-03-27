@@ -70,8 +70,6 @@
     var beginningOfTomorrow = new Date();
     beginningOfTomorrow.setDate(now.getDate() + 1);
     beginningOfTomorrow.setHours(0, 0, 0);
-    timeArray = [];
-    //startTimeUnix, startTimeUnix+ 10800, startTimeUnix+21600, startTimeUnix];
 
 
     $("#submit").on("click", function () {
@@ -81,7 +79,7 @@
         var hoursHuman = startTimeHuman.substring(0, 2);
         var minsHuman = startTimeHuman.substring(3, 5);
         beginningOfTomorrow.setHours(hoursHuman, minsHuman, 0);
-        startTimeUnix = (beginningOfTomorrow.getTime()) / 1000 - (7 * 60 * 60);
+        startTimeUnix = (beginningOfTomorrow.getTime())/1000;
         currentTime = startTimeUnix;
         routeMap();
     })
@@ -98,7 +96,6 @@
 
         var weatherHeader = $("<h4>").text("Weather during route:").appendTo("#weatherContainer");
         var textDirectionsHeader = $("<h4>").text("Directions:").appendTo("#textDirections");
-
 
 
         var route = new Map();
@@ -167,11 +164,12 @@
                             locales.push(station.city.name) //push non duplicate station.name into array
                             console.log(station)
 
-                            var weather = $("<div>").attr("class", "<row>").appendTo("#weatherContainer");
-                            var weatherData = $("<div>").attr("class", "<col-2>").appendTo(weather);
-                            var weatherIcon = $("<div>").attr("class", "<col-2>").appendTo(weather);
+                            var weather = $("<div>").attr("class", "card").attr("id", "weatherCard").appendTo("#weatherContainer");
+                            var weatherData = $("<col>").appendTo(weather);
+                            var weatherIcon = $("<col>").appendTo(weather);
 
-                            var city = $("<h5>").text(station.city.name).appendTo(weatherData);
+                            var timeAtPoint = convertTimestamp(station.elapsedTime).substring(6,14);
+                            var city = $("<h5>").text(station.city.name + ", " + timeAtPoint).appendTo(weatherData);
                             var condition = $("<p>").text("Conditions: " + forecast.weather[0].description).appendTo(weatherData);
                             var tempCalc = Math.round((forecast.main.temp - 273.15) * 9 / 5 + 32);
                             var temperature = $("<p>").text("Temp: " + tempCalc + " degrees F").appendTo(weatherData);
@@ -191,7 +189,8 @@
             pointB = new google.maps.LatLng(latB, longB),
             myOptions = {
                 zoom: 7,
-                center: pointA
+                center: pointA,
+                mapTypeId: "satellite"
             },
             map = new google.maps.Map(document.getElementById('routeMap'), myOptions),
             // Instantiate a directions service.
@@ -231,6 +230,31 @@
                 directionsDisplay.setDirections(response);
             }
         });
+    }
+
+
+    function convertTimestamp(timestamp) { //converts unix time from API response to conventional time
+        var d = new Date(timestamp * 1000),	
+            mm = (d.getMonth() + 1), 
+            dd = ('0' + d.getDate()).slice(-2),			
+            hh = d.getHours(),
+            h = hh,
+            min = ('0' + d.getMinutes()).slice(-2),		
+            ampm = 'AM',
+            time;
+
+        if (hh > 12) {
+            h = hh - 12;
+            ampm = 'PM';
+        } else if (hh === 12) {
+            h = 12;
+            ampm = 'PM';
+        } else if (hh == 0) {
+            h = 12;
+        }
+
+        time = mm + '/' + dd + ', ' + h + ':' + min + ' ' + ampm;
+        return time;
     }
 
 </script>
