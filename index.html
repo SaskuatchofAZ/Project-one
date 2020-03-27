@@ -57,6 +57,7 @@
     var endCity;
     var startTimeHuman; //will store user entered start time
     var startTimeUnix; //will store startTimeHuman converted to UNIX
+    var currentTime;
     var map;
     var forecastList = [];
     var weatherChoice = [];
@@ -69,7 +70,8 @@
     var beginningOfTomorrow = new Date();
     beginningOfTomorrow.setDate(now.getDate() + 1);
     beginningOfTomorrow.setHours(0, 0, 0);
-
+    timeArray = [];
+    //startTimeUnix, startTimeUnix+ 10800, startTimeUnix+21600, startTimeUnix];
 
 
     $("#submit").on("click", function () {
@@ -80,7 +82,7 @@
         var minsHuman = startTimeHuman.substring(3, 5);
         beginningOfTomorrow.setHours(hoursHuman, minsHuman, 0);
         startTimeUnix = (beginningOfTomorrow.getTime()) / 1000 - (7 * 60 * 60);
-
+        currentTime = startTimeUnix;
         routeMap();
     })
 
@@ -117,6 +119,11 @@
                 var lat = response.routes[0].legs[0].steps[i].end_location.lat
                 var lng = response.routes[0].legs[0].steps[i].end_location.lng
                 const id = i;
+                
+
+                currentTime += response.routes[0].legs[0].steps[i].duration.value;
+                const elapsedTime = currentTime;
+                console.log(elapsedTime);
 
                 var textDirections = $("<p>").appendTo(textDirectionsHeader).html(response.routes[0].legs[0].steps[i].html_instructions);
 
@@ -125,6 +132,7 @@
                     method: "GET", async: false
                 })
 
+                res.responseJSON.elapsedTime = elapsedTime;
                 route.set(i, res);
                 //console.log(res);
 
@@ -147,19 +155,17 @@
                             forecastList.push(station);
 
                             for (var k = 0; k < station.list.length && forecast == null; k++) {
-                                if (station.list[k].dt > startTimeUnix) {
+                                
+                                if (station.list[k].dt > station.elapsedTime) {
                                     forecast = station.list[k];
                                     weatherChoice.push(forecast);
-                                    
+                                    console.log(new Date(station.list[k].dt*1000))
+                                    console.log(new Date(station.elapsedTime*1000))
                                 }
                             }
 
                             locales.push(station.city.name) //push non duplicate station.name into array
                             console.log(station)
-                            var marker
-
-
-
 
                             var weather = $("<div>").attr("class", "<row>").appendTo("#weatherContainer");
                             var weatherData = $("<div>").attr("class", "<col-2>").appendTo(weather);
