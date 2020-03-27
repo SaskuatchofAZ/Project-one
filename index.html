@@ -58,6 +58,8 @@
     var startTimeHuman; //will store user entered start time
     var startTimeUnix; //will store startTimeHuman converted to UNIX
     var map;
+    var forecastList = [];
+    var weatherChoice = [];
 
     $("#routeMap").hide();
     $("#textDirections").hide();
@@ -69,15 +71,16 @@
     beginningOfTomorrow.setHours(0, 0, 0);
 
 
+
     $("#submit").on("click", function () {
         startCity = $("#startingPt").val().trim();
         endCity = $("#destinationPt").val().trim();
         startTimeHuman = $("#startTm").val().trim();
-        var hoursHuman = startTimeHuman.substring(0,2);
-        var minsHuman = startTimeHuman.substring(3,5);
+        var hoursHuman = startTimeHuman.substring(0, 2);
+        var minsHuman = startTimeHuman.substring(3, 5);
         beginningOfTomorrow.setHours(hoursHuman, minsHuman, 0);
         startTimeUnix = (beginningOfTomorrow.getTime()) / 1000 - (7 * 60 * 60);
-        
+
         routeMap();
     })
 
@@ -86,13 +89,15 @@
 
         $("#weatherContainer").empty();
         $("#textDirections").empty();
-        
+
         $("#routeMap").show();
         $("#weatherContainer").show();
         $("#textDirections").show();
 
         var weatherHeader = $("<h4>").text("Weather during route:").appendTo("#weatherContainer");
         var textDirectionsHeader = $("<h4>").text("Directions:").appendTo("#textDirections");
+
+
 
         var route = new Map();
         $.ajax({
@@ -106,7 +111,7 @@
             var endLat = response.routes[0].legs[0].end_location.lat;
             var endLong = response.routes[0].legs[0].end_location.lng;
 
-            initMap(startLat, startLong, endLat, endLong);
+
 
             for (i = 0; i < response.routes[0].legs[0].steps.length; i++) {
                 var lat = response.routes[0].legs[0].steps[i].end_location.lat
@@ -139,18 +144,26 @@
                         if (!duplicate) {
 
                             var forecast;
+                            forecastList.push(station);
 
                             for (var k = 0; k < station.list.length && forecast == null; k++) {
                                 if (station.list[k].dt > startTimeUnix) {
                                     forecast = station.list[k];
+                                    weatherChoice.push(forecast);
+                                    
                                 }
                             }
 
                             locales.push(station.city.name) //push non duplicate station.name into array
+                            console.log(station)
+                            var marker
 
-                            var weather = $("<div>").attr("class", "<row>").appendTo("#weatherContainer")
-                            var weatherData = $("<div>").attr("class", "<col>").appendTo(weather);
-                            var weatherIcon = $("<div>").attr("class", "<col>").appendTo(weather);
+
+
+
+                            var weather = $("<div>").attr("class", "<row>").appendTo("#weatherContainer");
+                            var weatherData = $("<div>").attr("class", "<col-2>").appendTo(weather);
+                            var weatherIcon = $("<div>").attr("class", "<col-2>").appendTo(weather);
 
                             var city = $("<h5>").text(station.city.name).appendTo(weatherData);
                             var condition = $("<p>").text("Conditions: " + forecast.weather[0].description).appendTo(weatherData);
@@ -161,9 +174,11 @@
                     })
                 }
             }
+
+            initMap(startLat, startLong, endLat, endLong);
         });
     }
-    
+
 
     function initMap(latA, longA, latB, longB) {
         var pointA = new google.maps.LatLng(latA, longA),
@@ -177,23 +192,26 @@
             directionsService = new google.maps.DirectionsService,
             directionsDisplay = new google.maps.DirectionsRenderer({
                 map: map
-            }),
-            markerA = new google.maps.Marker({
-                position: pointA,
-                title: "point A",
-                label: "A",
-                map: map
-            }),
-            markerB = new google.maps.Marker({
-                position: pointB,
-                title: "point B",
-                label: "B",
-                map: map
+            })
+
+            setMarkers(map);
+
+            // get route from A to B
+            calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB);
+
+    }
+
+    function setMarkers(map) {
+        for (var h = 0; h < forecastList.length; h++) {
+            var forecastChoice = new google.maps.LatLng(forecastList[h].city.coord.lat, forecastList[h].city.coord.lon);
+            console.log(weatherChoice)
+            var marker = new google.maps.Marker({
+                position: forecastChoice,
+                map: map,
+                icon: "https://openweathermap.org/img/wn/" + weatherChoice[h].weather[0].icon + "@2x.png",
+                size: (20, 20),
             });
-
-        // get route from A to B
-        calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB);
-
+        }
     }
 
 
