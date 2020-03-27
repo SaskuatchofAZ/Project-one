@@ -9,7 +9,7 @@
 #userInputs{
     padding: 10px;
     margin: 15px;
-    background-color: beige;
+    background-color: #D8D1C9;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
@@ -22,7 +22,7 @@
 #routeMap{
     padding: 10px;
     margin: 15px;
-    background-color: beige;
+    background-color: #D8D1C9;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
@@ -30,10 +30,10 @@
     height: 600px;
 }
 
-#weatherContainer{
+#forecastPoint{
     padding: 10px;
     margin: 15px 15px 15px 0px;
-    background-color: beige;
+    background-color: #D8D1C9;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
@@ -43,7 +43,7 @@
 #textDirections{
     padding: 10px;
     margin: 30px 15px 15px 15px;
-    background-color: beige;
+    background-color:#D8D1C9;
     border-color: navy;
     border-style: outset;
     border-radius: 15px;
