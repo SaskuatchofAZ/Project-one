@@ -58,8 +58,6 @@
     var startTimeHuman; //will store user entered start time
     var startTimeUnix; //will store startTimeHuman converted to UNIX
     var map;
-    var forecastList = [];
-    var weatherChoice = [];
 
     $("#routeMap").hide();
     $("#textDirections").hide();
@@ -71,16 +69,16 @@
     beginningOfTomorrow.setHours(0, 0, 0);
 
 
-
     $("#submit").on("click", function () {
         startCity = $("#startingPt").val().trim();
         endCity = $("#destinationPt").val().trim();
         startTimeHuman = $("#startTm").val().trim();
-        var hoursHuman = startTimeHuman.substring(0, 2);
-        var minsHuman = startTimeHuman.substring(3, 5);
+        var hoursHuman = startTimeHuman.substring(0,2);
+        var minsHuman = startTimeHuman.substring(3,5);
         beginningOfTomorrow.setHours(hoursHuman, minsHuman, 0);
         startTimeUnix = (beginningOfTomorrow.getTime()) / 1000 - (7 * 60 * 60);
-
+        timesArray = [startTimeUnix, startTimeUnix+10800, startTimeUnix+21600, startTimeUnix+32400, startTimeUnix+43200];
+        
         routeMap();
     })
 
@@ -89,15 +87,13 @@
 
         $("#weatherContainer").empty();
         $("#textDirections").empty();
-
+        
         $("#routeMap").show();
         $("#weatherContainer").show();
         $("#textDirections").show();
 
         var weatherHeader = $("<h4>").text("Weather during route:").appendTo("#weatherContainer");
         var textDirectionsHeader = $("<h4>").text("Directions:").appendTo("#textDirections");
-
-
 
         var route = new Map();
         $.ajax({
@@ -111,7 +107,7 @@
             var endLat = response.routes[0].legs[0].end_location.lat;
             var endLong = response.routes[0].legs[0].end_location.lng;
 
-
+            initMap(startLat, startLong, endLat, endLong);
 
             for (i = 0; i < response.routes[0].legs[0].steps.length; i++) {
                 var lat = response.routes[0].legs[0].steps[i].end_location.lat
@@ -130,8 +126,11 @@
 
                 if (route.size === response.routes[0].legs[0].steps.length) {
 
+                    var l=0;
+
                     var locales = []; //empty array of unique station names
                     route.forEach(function (station, id) {
+
                         var station = station.responseJSON
                         var duplicate = false //default duplicate value for each new staion.name is no
 
@@ -144,41 +143,34 @@
                         if (!duplicate) {
 
                             var forecast;
-                            forecastList.push(station);
+
 
                             for (var k = 0; k < station.list.length && forecast == null; k++) {
-                                if (station.list[k].dt > startTimeUnix) {
+                                if (station.list[k].dt > timesArray[l]) {
                                     forecast = station.list[k];
-                                    weatherChoice.push(forecast);
-                                    
                                 }
                             }
+                            
+                            console.log(forecast);
 
                             locales.push(station.city.name) //push non duplicate station.name into array
-                            console.log(station)
-                            var marker
 
+                            var weather = $("<div class='card'>card ").attr("id", "forecastPoint").appendTo("#weatherContainer");
 
-
-
-                            var weather = $("<div>").attr("class", "<row>").appendTo("#weatherContainer");
-                            var weatherData = $("<div>").attr("class", "<col-2>").appendTo(weather);
-                            var weatherIcon = $("<div>").attr("class", "<col-2>").appendTo(weather);
-
-                            var city = $("<h5>").text(station.city.name).appendTo(weatherData);
-                            var condition = $("<p>").text("Conditions: " + forecast.weather[0].description).appendTo(weatherData);
+                            var city = $("<h5>").text(station.city.name).appendTo(weather);
+                            var condition = $("<p>").text("Conditions: " + forecast.weather[0].description).appendTo(weather);
                             var tempCalc = Math.round((forecast.main.temp - 273.15) * 9 / 5 + 32);
-                            var temperature = $("<p>").text("Temp: " + tempCalc + " degrees F").appendTo(weatherData);
-                            var forecastIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + forecast.weather[0].icon + "@2x.png").appendTo(weatherIcon);
+                            var temperature = $("<p>").text("Temp: " + tempCalc + " degrees F").appendTo(weather);
+                            var forecastIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + forecast.weather[0].icon + "@2x.png").appendTo(weather);
+                        
+                            l++;
                         }
                     })
                 }
             }
-
-            initMap(startLat, startLong, endLat, endLong);
         });
     }
-
+    
 
     function initMap(latA, longA, latB, longB) {
         var pointA = new google.maps.LatLng(latA, longA),
@@ -192,26 +184,23 @@
             directionsService = new google.maps.DirectionsService,
             directionsDisplay = new google.maps.DirectionsRenderer({
                 map: map
-            })
-
-            setMarkers(map);
-
-            // get route from A to B
-            calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB);
-
-    }
-
-    function setMarkers(map) {
-        for (var h = 0; h < forecastList.length; h++) {
-            var forecastChoice = new google.maps.LatLng(forecastList[h].city.coord.lat, forecastList[h].city.coord.lon);
-            console.log(weatherChoice)
-            var marker = new google.maps.Marker({
-                position: forecastChoice,
-                map: map,
-                icon: "https://openweathermap.org/img/wn/" + weatherChoice[h].weather[0].icon + "@2x.png",
-                size: (20, 20),
+            }),
+            markerA = new google.maps.Marker({
+                position: pointA,
+                title: "point A",
+                label: "A",
+                map: map
+            }),
+            markerB = new google.maps.Marker({
+                position: pointB,
+                title: "point B",
+                label: "B",
+                map: map
             });
-        }
+
+        // get route from A to B
+        calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB);
+
     }
 
 
