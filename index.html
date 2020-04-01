@@ -100,7 +100,7 @@
 
         var route = new Map();
         $.ajax({
-            url: "https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
+            url: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/directions/json?origin=" + startCity + "&destination=" + endCity + "&key=" + apiKey,
             method: "GET"
         }).then(function (response) {
             console.log(response);
